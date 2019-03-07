@@ -7,6 +7,7 @@ import com.github.pgutkowski.kgraphql.RequestException
 import com.github.pgutkowski.kgraphql.schema.builtin.BOOLEAN_COERCION
 import com.github.pgutkowski.kgraphql.schema.builtin.DOUBLE_COERCION
 import com.github.pgutkowski.kgraphql.schema.builtin.FLOAT_COERCION
+import com.github.pgutkowski.kgraphql.schema.builtin.SHORT_COERCION
 import com.github.pgutkowski.kgraphql.schema.builtin.INT_COERCION
 import com.github.pgutkowski.kgraphql.schema.builtin.LONG_COERCION
 import com.github.pgutkowski.kgraphql.schema.builtin.STRING_COERCION
@@ -20,6 +21,7 @@ fun <T : Any> deserializeScalar(scalar: Type.Scalar<T>, value : String): T {
             STRING_COERCION -> STRING_COERCION.deserialize(value) as T
             FLOAT_COERCION -> FLOAT_COERCION.deserialize(value) as T
             DOUBLE_COERCION -> DOUBLE_COERCION.deserialize(value) as T
+            SHORT_COERCION -> SHORT_COERCION.deserialize(value) as T
             INT_COERCION -> INT_COERCION.deserialize(value) as T
             BOOLEAN_COERCION -> BOOLEAN_COERCION.deserialize(value) as T
             LONG_COERCION -> LONG_COERCION.deserialize(value) as T

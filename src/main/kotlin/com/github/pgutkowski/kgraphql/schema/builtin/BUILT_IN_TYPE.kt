@@ -32,7 +32,10 @@ object BUILT_IN_TYPE {
 
     val INT = TypeDef.Scalar(Int::class.defaultKQLTypeName(), Int::class, INT_COERCION, INT_DESCRIPTION)
 
-    //GraphQL does not differ float and double, treat double like float
+    // GraphQL does not differ short (16 bits) and int (32 bits), treat short like int
+    val SHORT = TypeDef.Scalar(Int::class.defaultKQLTypeName(), Short::class, SHORT_COERCION, INT_DESCRIPTION)
+
+    // GraphQL does not differ float and double, treat double like float
     val DOUBLE = TypeDef.Scalar(Float::class.defaultKQLTypeName(), Double::class, DOUBLE_COERCION, FLOAT_DESCRIPTION)
 
     val FLOAT = TypeDef.Scalar(Float::class.defaultKQLTypeName(), Float::class, FLOAT_COERCION, FLOAT_DESCRIPTION)
@@ -82,6 +85,12 @@ object INT_COERCION : StringScalarCoercion<Int>{
             return raw.toInt()
         }
     }
+}
+
+object SHORT_COERCION : StringScalarCoercion<Short>{
+    override fun serialize(instance: Short): String = instance.toInt().toString()
+
+    override fun deserialize(raw: String): Short = INT_COERCION.deserialize(raw).toShort()
 }
 
 object LONG_COERCION : StringScalarCoercion<Long> {
