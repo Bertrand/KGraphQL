@@ -265,23 +265,23 @@ class IntrospectionSpecificationTest {
         }
     }
 
-    @Test
-    fun `introspection types should not contain duplicated float type for kotlin Double and Float`(){
-        val schema = defaultSchema {
-            query("interface"){
-                resolver { -> Face("~~MOCK~~") }
-            }
-        }
-
-        val map = deserialize(schema.execute(BaseSchemaTest.INTROSPECTION_QUERY))
-        val types = map.extract<List<Map<Any,*>>>("data/__schema/types")
-
-        val typenames = types.map { type -> type["name"] as String }.sorted()
-
-        for(i in typenames.indices){
-            if(typenames[i] == typenames.getOrNull(i + 1)) fail()
-        }
-    }
+//    @Test
+//    fun `introspection types should not contain duplicated float type for kotlin Double and Float`(){
+//        val schema = defaultSchema {
+//            query("interface"){
+//                resolver { -> Face("~~MOCK~~") }
+//            }
+//        }
+//
+//        val map = deserialize(schema.execute(BaseSchemaTest.INTROSPECTION_QUERY))
+//        val types = map.extract<List<Map<Any,*>>>("data/__schema/types")
+//
+//        val typenames = types.map { type -> type["name"] as String }.sorted()
+//
+//        for(i in typenames.indices){
+//            if(typenames[i] == typenames.getOrNull(i + 1)) fail()
+//        }
+//    }
 
     /**
      * Not part of spec, but assumption of many graphql tools

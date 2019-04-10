@@ -81,7 +81,7 @@ class DefaultSchema (
 
     override fun inputTypeByKClass(kClass: KClass<*>): Type? = model.inputTypes[kClass]
 
-    override fun inputTypeByKType(kType: KType): Type? = typeByKClass(kType.jvmErasure)
+    override fun inputTypeByKType(kType: KType): Type? = inputTypeByKClass(kType.jvmErasure)
 
     override fun typeByName(name: String): Type? = model.queryTypesByName[name]
 
