@@ -17,7 +17,11 @@ import com.github.pgutkowski.kgraphql.schema.structure2.Field
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import org.hamcrest.CoreMatchers
-import org.hamcrest.CoreMatchers.*
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.MatcherAssert
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
