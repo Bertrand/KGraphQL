@@ -509,4 +509,27 @@ class SchemaBuilderTest {
             }
         }
     }
+
+    @Test
+    fun `properties can have suspend resolvers`(){
+        val schema = defaultSchema {
+
+            query("actor") {
+                resolver { -> Actor("Boguś Linda", 4343) }
+            }
+
+            type<Actor>{
+                property<String>("suspendFavDish") {
+                    suspendResolver { _: Actor ->
+                        delay(10)
+                        "steak"
+                    }
+                }
+            }
+        }
+
+        val response = deserialize(schema.execute("{actor{suspendFavDish}}"))
+        assertThat(response.extract<String>("data/actor/suspendFavDish"), equalTo("steak"))
+    }
+
 }
