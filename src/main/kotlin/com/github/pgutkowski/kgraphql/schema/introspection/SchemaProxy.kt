@@ -3,6 +3,7 @@ package com.github.pgutkowski.kgraphql.schema.introspection
 import com.github.pgutkowski.kgraphql.Context
 import com.github.pgutkowski.kgraphql.schema.structure2.LookupSchema
 import com.github.pgutkowski.kgraphql.schema.structure2.Type
+import kotlinx.coroutines.CoroutineScope
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -48,7 +49,7 @@ class SchemaProxy(var proxiedSchema : LookupSchema? = null) : LookupSchema {
         return getProxied().execute(request, variables, context)
     }
 
-    override suspend fun suspendExecute(request: String, variables: String?, context: Context): String {
-        return getProxied().suspendExecute(request, variables, context)
+    override suspend fun suspendExecute(request: String, variables: String?, context: Context, coroutineScope: CoroutineScope): String {
+        return getProxied().suspendExecute(request, variables, context, coroutineScope)
     }
 }

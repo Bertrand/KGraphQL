@@ -13,7 +13,9 @@ import com.github.pgutkowski.kgraphql.schema.structure2.LookupSchema
 import com.github.pgutkowski.kgraphql.schema.structure2.RequestInterpreter
 import com.github.pgutkowski.kgraphql.schema.structure2.SchemaModel
 import com.github.pgutkowski.kgraphql.schema.structure2.Type
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.starProjectedType
@@ -43,11 +45,11 @@ class DefaultSchema (
 
     override fun execute(request: String, variables: String?, context: Context): String {
         return runBlocking {
-            suspendExecute(request, variables, context)
+            suspendExecute(request, variables, context, CoroutineScope(configuration.coroutineDispatcher))
         }
     }
 
-    override suspend fun suspendExecute(request: String, variables: String?, context: Context): String {
+    override suspend fun suspendExecute(request: String, variables: String?, context: Context, coroutineScope: CoroutineScope): String {
 
         val parsedVariables = variables
                 ?.let { VariablesJson.Defined(configuration.objectMapper, variables) }
@@ -62,7 +64,8 @@ class DefaultSchema (
                 return requestExecutor.suspendExecute(
                         plan = requestInterpreter.createExecutionPlan(operations.first()),
                         variables = parsedVariables,
-                        context = context
+                        context = context,
+                        coroutineScope = coroutineScope
                 )
             }
             else -> {
@@ -77,7 +80,7 @@ class DefaultSchema (
                     val executionPlan = executionPlans[operationName]
                             ?: throw RequestException("Must provide an operation name from: ${executionPlans.keys}, found $operationName")
 
-                    return requestExecutor.suspendExecute(executionPlan, parsedVariables, context)
+                    return requestExecutor.suspendExecute(executionPlan, parsedVariables, context, coroutineScope)
                 }
             }
         }

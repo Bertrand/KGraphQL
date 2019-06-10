@@ -28,17 +28,15 @@ import kotlin.reflect.KProperty1
 
 
 @Suppress("UNCHECKED_CAST") // For valid structure there is no risk of ClassCastException
-class ParallelRequestExecutor(val schema: DefaultSchema) : RequestExecutor, CoroutineScope {
+class ParallelRequestExecutor(
+    val schema: DefaultSchema
+) : RequestExecutor {
 
     data class ExecutionContext(val variables: Variables, val requestContext: Context)
-
-    override val coroutineContext: CoroutineContext = Job()
 
     private val argumentsHandler = ArgumentsHandler(schema)
 
     private val jsonNodeFactory = JsonNodeFactory.instance
-
-    private val dispatcher = schema.configuration.coroutineDispatcher
 
     private val objectWriter = schema.configuration.objectMapper.writer().let {
         if (schema.configuration.useDefaultPrettyPrinter) {
@@ -48,13 +46,13 @@ class ParallelRequestExecutor(val schema: DefaultSchema) : RequestExecutor, Coro
         }
     }
 
-    override suspend fun suspendExecute(plan: ExecutionPlan, variables: VariablesJson, context: Context): String {
+    override suspend fun suspendExecute(plan: ExecutionPlan, variables: VariablesJson, context: Context, coroutineScope: CoroutineScope): String {
         val root = jsonNodeFactory.objectNode()
         val data = root.putObject("data")
         val channel = Channel<Pair<Execution, JsonNode>>()
         val jobs = plan
                 .map { execution ->
-                    launch(dispatcher) {
+                    coroutineScope.launch {
                         try {
                             val writeOperation = writeOperation(
                                     ctx = ExecutionContext(Variables(schema, variables, execution.variables), context),
@@ -90,7 +88,7 @@ class ParallelRequestExecutor(val schema: DefaultSchema) : RequestExecutor, Coro
     }
 
     override fun execute(plan: ExecutionPlan, variables: VariablesJson, context: Context): String = runBlocking {
-        suspendExecute(plan, variables, context)
+        suspendExecute(plan, variables, context, CoroutineScope(schema.configuration.coroutineDispatcher))
     }
 
     private suspend fun <T> writeOperation(ctx: ExecutionContext, node: Execution.Node, operation: FunctionWrapper<T>): JsonNode {
