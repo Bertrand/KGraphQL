@@ -13,6 +13,7 @@ import com.github.pgutkowski.kgraphql.schema.structure2.LookupSchema
 import com.github.pgutkowski.kgraphql.schema.structure2.RequestInterpreter
 import com.github.pgutkowski.kgraphql.schema.structure2.SchemaModel
 import com.github.pgutkowski.kgraphql.schema.structure2.Type
+import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.starProjectedType
@@ -41,6 +42,13 @@ class DefaultSchema (
     }
 
     override fun execute(request: String, variables: String?, context: Context): String {
+        return runBlocking {
+            suspendExecute(request, variables, context)
+        }
+    }
+
+    override suspend fun suspendExecute(request: String, variables: String?, context: Context): String {
+
         val parsedVariables = variables
                 ?.let { VariablesJson.Defined(configuration.objectMapper, variables) }
                 ?: VariablesJson.Empty()
@@ -51,7 +59,7 @@ class DefaultSchema (
                 throw RequestException("Must provide any operation")
             }
             1 -> {
-                return requestExecutor.execute(
+                return requestExecutor.suspendExecute(
                         plan = requestInterpreter.createExecutionPlan(operations.first()),
                         variables = parsedVariables,
                         context = context
@@ -69,7 +77,7 @@ class DefaultSchema (
                     val executionPlan = executionPlans[operationName]
                             ?: throw RequestException("Must provide an operation name from: ${executionPlans.keys}, found $operationName")
 
-                    return requestExecutor.execute(executionPlan, parsedVariables, context)
+                    return requestExecutor.suspendExecute(executionPlan, parsedVariables, context)
                 }
             }
         }
